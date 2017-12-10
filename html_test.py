@@ -189,6 +189,5 @@ var _hmt = _hmt || [];
 '''.replace('xmlns', 'another_attr')
 from pyquery import PyQuery as pq
 doc = pq(html)
-options = doc('#timucontent li').items()
-for sel in options:
-    print(sel.text())
+ques = doc('#timucontent h2').text().replace('（ ）','').replace('。','')
+print(ques[-5:])

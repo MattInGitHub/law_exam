@@ -42,26 +42,25 @@ def login():
             EC.presence_of_element_located((By.CSS_SELECTOR, "div#timucontent")))
     except TimeoutException:
         print("超时")
-    html = driver.page_source
-    # 必须去掉xmlns属性，不然不能正确解析
-    return html.replace('xmlns','another_attr'),driver
+    return driver
 
-    # driver.close()
 
-def answer(html,driver):
-    doc = pq(html)
-    question= doc('#timucontent h2').text()
+
+def answer(driver):
     while(1):
+        doc = get_html(driver)
+        question = doc('#timucontent h2').text()
+        print(question)
         try:
             option = driver.find_element_by_css_selector('input[value=A]')
             option.click()
         except NoSuchElementException:
-            print("没有找到选项A ")
+            print("no A ")
         try:
             option = driver.find_element_by_css_selector('input[value="1"]')
             option.click()
         except NoSuchElementException:
-            print("没有找到选项1 ")
+            print("no 1 ")
         try:
             next = driver.find_element_by_css_selector('[id=nextButton]')
             next.click()
@@ -71,6 +70,11 @@ def answer(html,driver):
 
     # print(doc('#timucontent h2').text())
 
+def get_html(driver):
+    html = driver.page_source
+    # 必须去掉xmlns属性，不然不能正确解析
+    html = html.replace('xmlns','another_attr')
+    return pq(html)
 
 def switch_new(driver):
     # 获取所有页面的句柄，并循环判断不是当前的句柄
@@ -81,5 +85,6 @@ def switch_new(driver):
             break
 
 if __name__ =='__main__':
-    html,driver = login()
-    answer(html,driver)
+    driver = login()
+    answer(driver)
+    # driver.close()
