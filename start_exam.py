@@ -44,15 +44,32 @@ def login():
         print("超时")
     html = driver.page_source
     # 必须去掉xmlns属性，不然不能正确解析
-    return html.replace('xmlns','another_attr')
+    return html.replace('xmlns','another_attr'),driver
 
     # driver.close()
 
-def answer(html):
+def answer(html,driver):
     doc = pq(html)
     question= doc('#timucontent h2').text()
+    while(1):
+        try:
+            option = driver.find_element_by_css_selector('input[value=A]')
+            option.click()
+        except NoSuchElementException:
+            print("没有找到选项A ")
+        try:
+            option = driver.find_element_by_css_selector('input[value="1"]')
+            option.click()
+        except NoSuchElementException:
+            print("没有找到选项1 ")
+        try:
+            next = driver.find_element_by_css_selector('[id=nextButton]')
+            next.click()
+        except NoSuchElementException:
+            print("没有找到下一题 ")
+            break
 
-    print(doc('#timucontent h2').text())
+    # print(doc('#timucontent h2').text())
 
 
 def switch_new(driver):
@@ -64,5 +81,5 @@ def switch_new(driver):
             break
 
 if __name__ =='__main__':
-    html = login()
-    answer(html)
+    html,driver = login()
+    answer(html,driver)
