@@ -1,3 +1,4 @@
+from openpyxl import load_workbook
 html = '''
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
@@ -169,7 +170,7 @@ var _hmt = _hmt || [];
 		<!-- 单选题,多选题 ,判断题-->
 		<div class="timu"><span class="dx1">单选题：共<i>20</i>题，总分<i>40</i></span><span class="dx2">多选题：共<i>10</i>题，总分<i>20</i></span><span class="pd">判断题：共<i>20</i>题，总分<i>40</i></span></div>
 		<!-- 考试内容部分 -->
-		<div id="timucontent"><h2>1、（单选题）根据《宪法》的规定，村民委员会的委员由（ ）。</h2><ul><li><input name="option" type="radio" value="A" /> A.街道办事处任命</li><li><input name="option" type="radio" value="B" /> B.居民选举</li><li><input name="option" type="radio" value="C" /> C.上级选举</li><li><input name="option" type="radio" value="D" /> D.群众推荐上级任命</li></ul><span><a href="javascript:" id="nextButton" onclick="eps.switchQuestion(1,1,0,268136)">下一题</a></span></div>
+		<div id="timucontent"><h2>1、（单选题）驻外机构或者临时出国(境)团(组)中的党员，脱离组织出走时间超过（ ）个月的，按照自行脱党处理，党内予以除名。</h2><ul><li><input name="option" type="radio" value="A" /> A.街道办事处任命</li><li><input name="option" type="radio" value="B" /> B.居民选举</li><li><input name="option" type="radio" value="C" /> C.上级选举</li><li><input name="option" type="radio" value="D" /> D.群众推荐上级任命</li></ul><span><a href="javascript:" id="nextButton" onclick="eps.switchQuestion(1,1,0,268136)">下一题</a></span></div>
 
 		<div class="selecttimu">
 			<div class="title clear">
@@ -188,6 +189,42 @@ var _hmt = _hmt || [];
 </body></html>
 '''.replace('xmlns', 'another_attr')
 from pyquery import PyQuery as pq
-doc = pq(html)
-ques = doc('#timucontent h2').text().replace('（ ）','').replace('。','')
-print(ques[-5:])
+# doc = pq(html)
+# ques =doc('#timucontent h2').text().replace(' ','')
+#
+# page = ques.split('、')[1][:5]
+# # print(ques)
+# ques_list = ques.split('）')
+# keyword = sorted(ques_list,key = lambda x:len(x))[-1]
+# # print(keyword)
+#
+# wb = load_workbook(filename='D:\\answer\\one.xlsx')
+# test = wb.get_sheet_by_name('test')
+# a = ''
+# for row in range(1,test.max_row+1):
+#     if(keyword in test.cell(row = row,column=1).value):
+#         # print(test.cell(row = row,column=1).value,"\n",test.cell(row = row,column=2).value)
+#         a = test.cell(row = row,column=1).value
+#         break
+#
+
+import re
+# 将正则表达式编译成Pattern对象
+a="驻外机构或者临时出国(境)团(组)中的党员，脱离组织出走时间超过（C）个月的，按照自行脱党处理，党内予以除名。"
+# 使用Pattern匹配文本，获得匹配结果，无法匹配时将返回None
+match = re.match(u"C",a).span()
+if match:
+    print("1111")
+    # 使用Match获得分组信息
+    print(match)
+
+# wb = load_workbook(filename='D:\\answer\\one.xlsx')
+# test = wb.get_sheet_by_name('test')
+# for row in range(1,test.max_row+1):
+#     # print(test.cell(row = row,column=1).value.split('.')[1])
+#     sp_list =test.cell(row = row,column=1).value.split('.')
+#     if(len(sp_list)>1):
+#         test.cell(row=row, column=1).value=sp_list[1]
+#         print(test.cell(row=row, column=1).value)
+#     # print(test.cell(row=row, column=2).value)
+# wb.save('D:\\answer\\one.xlsx')

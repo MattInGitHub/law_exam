@@ -5,6 +5,7 @@ from selenium.webdriver.common.by import By
 from selenium.common.exceptions import TimeoutException, NoSuchElementException
 from selenium.webdriver.common.keys import Keys
 from pyquery import PyQuery as pq
+from openpyxl import load_workbook
 
 
 def login():
@@ -47,20 +48,23 @@ def login():
 
 
 def answer(driver):
+    # 检索
+    wb = load_workbook(filename='D:\\answer\\one.xlsx')
+    test = wb.get_sheet_by_name('test')
     while(1):
         doc = get_html(driver)
-        question = doc('#timucontent h2').text()
-        print(question)
-        try:
-            option = driver.find_element_by_css_selector('input[value=A]')
-            option.click()
-        except NoSuchElementException:
-            print("no A ")
-        try:
-            option = driver.find_element_by_css_selector('input[value="1"]')
-            option.click()
-        except NoSuchElementException:
-            print("no 1 ")
+        ques = doc('#timucontent h2').text().replace(' ', '')
+        find_answer(ques,test)
+        # try:
+        #     option = driver.find_element_by_css_selector('input[value=A]')
+        #     option.click()
+        # except NoSuchElementException:
+        #     print("no A ")
+        # try:
+        #     option = driver.find_element_by_css_selector('input[value="1"]')
+        #     option.click()
+        # except NoSuchElementException:
+        #     print("no 1 ")
         try:
             next = driver.find_element_by_css_selector('[id=nextButton]')
             next.click()
@@ -68,7 +72,18 @@ def answer(driver):
             print("没有找到下一题 ")
             break
 
-    # print(doc('#timucontent h2').text())
+def find_answer(ques,test):
+    # 题号
+    page = ques.split('、')[0]
+    # 类别
+    cat = ques.split('、')[1][:5]
+    # 关键词
+    ques_list = ques.split('）')
+    keyword = sorted(ques_list, key=lambda x: len(x))[-1]
+    print("keyword =",keyword,'\n类别=',cat)
+    for row in range(1, test.max_row + 1):
+        if (keyword in test.cell(row=row, column=1).value):
+            print(page, test.cell(row=row, column=1).value, '\n', test.cell(row=row, column=2).value, '\n')
 
 def get_html(driver):
     html = driver.page_source
