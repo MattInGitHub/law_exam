@@ -208,23 +208,31 @@ from pyquery import PyQuery as pq
 #         break
 #
 
-import re
-# 将正则表达式编译成Pattern对象
-a="驻外机构或者临时出国(境)团(组)中的党员，脱离组织出走时间超过（C）个月的，按照自行脱党处理，党内予以除名。"
-# 使用Pattern匹配文本，获得匹配结果，无法匹配时将返回None
-match = re.match(u"C",a).span()
-if match:
-    print("1111")
-    # 使用Match获得分组信息
-    print(match)
+# import re
+# pattern = re.compile(r'^.*\uff08([A-Z]+)\uff09.*$')
+# match = pattern.match('')
+# print(match.group(1))
 
-# wb = load_workbook(filename='D:\\answer\\one.xlsx')
-# test = wb.get_sheet_by_name('test')
-# for row in range(1,test.max_row+1):
-#     # print(test.cell(row = row,column=1).value.split('.')[1])
-#     sp_list =test.cell(row = row,column=1).value.split('.')
-#     if(len(sp_list)>1):
-#         test.cell(row=row, column=1).value=sp_list[1]
-#         print(test.cell(row=row, column=1).value)
-#     # print(test.cell(row=row, column=2).value)
-# wb.save('D:\\answer\\one.xlsx')
+
+def find_answer(ques,one):
+    # 题号
+    page = ques.split('、')[0]
+    # 类别
+    cat = ques.split('、')[1][:5]
+    # 关键词
+    ques_list = ques.split('）')
+    keyword = sorted(ques_list, key=lambda x: len(x))[-1]
+    print("keyword =",keyword,'\n类别=',cat)
+    if(cat=='（单选题）'):
+        for row in range(1, one.max_row + 1):
+            if (keyword in one.cell(row=row, column=1).value):
+                # print(page, one.cell(row=row, column=1).value, '\n', one.cell(row=row, column=2).value, '\n')
+                print(one.cell(row=row, column=3).value)
+                return one.cell(row=row, column=3).value
+
+if __name__ == '__main__':
+    wb = load_workbook(filename='D:\\answer\\one.xlsx')
+    one = wb.get_sheet_by_name('one')
+    doc = pq(html)
+    ques =doc('#timucontent h2').text().replace(' ','')
+    find_answer(ques,one)

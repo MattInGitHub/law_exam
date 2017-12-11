@@ -50,16 +50,16 @@ def login():
 def answer(driver):
     # 检索
     wb = load_workbook(filename='D:\\answer\\one.xlsx')
-    test = wb.get_sheet_by_name('test')
+    one = wb.get_sheet_by_name('one')
     while(1):
         doc = get_html(driver)
         ques = doc('#timucontent h2').text().replace(' ', '')
-        find_answer(ques,test)
-        # try:
-        #     option = driver.find_element_by_css_selector('input[value=A]')
-        #     option.click()
-        # except NoSuchElementException:
-        #     print("no A ")
+        sel = find_answer(ques,one)
+        try:
+            option = driver.find_element_by_css_selector('input[value='+sel+']')
+            option.click()
+        except NoSuchElementException:
+            print("no "+sel)
         # try:
         #     option = driver.find_element_by_css_selector('input[value="1"]')
         #     option.click()
@@ -72,7 +72,7 @@ def answer(driver):
             print("没有找到下一题 ")
             break
 
-def find_answer(ques,test):
+def find_answer(ques,one):
     # 题号
     page = ques.split('、')[0]
     # 类别
@@ -81,9 +81,11 @@ def find_answer(ques,test):
     ques_list = ques.split('）')
     keyword = sorted(ques_list, key=lambda x: len(x))[-1]
     print("keyword =",keyword,'\n类别=',cat)
-    for row in range(1, test.max_row + 1):
-        if (keyword in test.cell(row=row, column=1).value):
-            print(page, test.cell(row=row, column=1).value, '\n', test.cell(row=row, column=2).value, '\n')
+    if(cat=='（单选题）'):
+        for row in range(1, one.max_row + 1):
+            if (keyword in one.cell(row=row, column=1).value):
+                print(page, one.cell(row=row, column=1).value, '\n', one.cell(row=row, column=2).value, '\n')
+                return one.cell(row=row, column=3).value
 
 def get_html(driver):
     html = driver.page_source
