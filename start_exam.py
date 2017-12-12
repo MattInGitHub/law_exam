@@ -6,6 +6,7 @@ from selenium.common.exceptions import TimeoutException, NoSuchElementException
 from selenium.webdriver.common.keys import Keys
 from pyquery import PyQuery as pq
 from openpyxl import load_workbook
+from time import sleep
 
 
 def login():
@@ -49,22 +50,15 @@ def login():
 
 def answer(driver):
     # 检索
-    wb = load_workbook(filename='D:\\answer\\one.xlsx')
+    wb = load_workbook(filename=config.ANSWER_PATH)
     one = wb.get_sheet_by_name('one')
+    multi = wb.get_sheet_by_name('multi')
+    true = wb.get_sheet_by_name('true')
     while(1):
         doc = get_html(driver)
         ques = doc('#timucontent h2').text().replace(' ', '')
-        sel = find_answer(ques,one)
-        try:
-            option = driver.find_element_by_css_selector('input[value='+sel+']')
-            option.click()
-        except NoSuchElementException:
-            print("no "+sel)
-        # try:
-        #     option = driver.find_element_by_css_selector('input[value="1"]')
-        #     option.click()
-        # except NoSuchElementException:
-        #     print("no 1 ")
+        find_answer(driver,ques,one,multi,true)
+        sleep(0.2)
         try:
             next = driver.find_element_by_css_selector('[id=nextButton]')
             next.click()
@@ -72,7 +66,7 @@ def answer(driver):
             print("没有找到下一题 ")
             break
 
-def find_answer(ques,one):
+def find_answer(driver,ques,one,multi,true):
     # 题号
     page = ques.split('、')[0]
     # 类别
@@ -80,12 +74,45 @@ def find_answer(ques,one):
     # 关键词
     ques_list = ques.split('）')
     keyword = sorted(ques_list, key=lambda x: len(x))[-1]
-    print("keyword =",keyword,'\n类别=',cat)
+    # print("keyword =",keyword,'\n类别=',cat)
     if(cat=='（单选题）'):
+        sel=''
         for row in range(1, one.max_row + 1):
             if (keyword in one.cell(row=row, column=1).value):
-                print(page, one.cell(row=row, column=1).value, '\n', one.cell(row=row, column=2).value, '\n')
-                return one.cell(row=row, column=3).value
+                # print(page, one.cell(row=row, column=1).value, '\n', one.cell(row=row, column=2).value, '\n')
+                sel= one.cell(row=row, column=3).value
+                break
+        try:
+            option = driver.find_element_by_css_selector('input[value='+sel+']')
+            option.click()
+        except NoSuchElementException:
+            print("未答！：\n",ques)
+    if(cat=='（多选题）'):
+        sels=''
+        for row in range(1, multi.max_row + 1):
+            if (keyword in multi.cell(row=row, column=1).value):
+                # print(page, multi.cell(row=row, column=1).value, '\n', multi.cell(row=row, column=2).value, '\n')
+                sels= multi.cell(row=row, column=3).value
+                break
+        try:
+            # print(page,sels)
+            for sel in sels:
+                option = driver.find_element_by_css_selector('input[value='+sel+']')
+                option.click()
+        except NoSuchElementException:
+            print("未答！：\n", ques)
+    if(cat=='（判断题）'):
+        judge=''
+        for row in range(1, true.max_row + 1):
+            if (keyword in true.cell(row=row, column=1).value):
+                # print(page, true.cell(row=row, column=1).value)
+                judge= true.cell(row=row, column=2).value
+                break
+        try:
+            option = driver.find_element_by_css_selector('input[value=\"'+str(judge)+'\"]')
+            option.click()
+        except NoSuchElementException:
+            print("未答！：\n", ques)
 
 def get_html(driver):
     html = driver.page_source
@@ -104,4 +131,3 @@ def switch_new(driver):
 if __name__ =='__main__':
     driver = login()
     answer(driver)
-    # driver.close()
